@@ -1,0 +1,41 @@
+html {
+	font-size: 16px;
+}
+body {
+	font-family: monospace;
+}
+.content-wrapper {
+	box-sizing: border-box;
+	margin: 0 auto;
+	min-height: 100%;
+	padding: 42px 24px 18px;
+	width: 96%;
+}
+
+.page-title {
+	font-size: 1.2em;
+}
+
+.initial-text {
+	line-height: 1.25em;
+	margin-top: 10px;
+	text-indent: 14px;
+}
+
+#globe-map {
+	margin: 20px 0;
+	position: relative;
+	shape-rendering: geometricPrecision;
+}
+
+#footer {
+	text-align: center;
+}
+
+#footer a {
+	text-decoration: none;
+}
+
+.map-outer-container {
+	padding: 14px 8px;
+}

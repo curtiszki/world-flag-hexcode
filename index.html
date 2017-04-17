@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<!-- web map -->
+<html lang="en">
+
+	<head>
+		<title>Global Flag Hexcode Globe</title>
+		<!-- :meta tags -->
+		<meta charset='utf-8'>
+		<!-- meta: -->
+		<link rel='stylesheet' href='reset.min.css' type='text/css'>
+		<link rel='stylesheet' href='index.css' type='text/css'>
+	</head>
+
+	<!-- inline styles -->
+	<style type='text/css'>
+
+		#d3-sphere {
+			fill: #F8F8F8;
+			stroke: #858585;
+			stroke-width: 2px;
+		}
+
+		.border {
+			fill: none;
+			stroke: #434b54;
+		}
+
+		.country {
+			cursor: pointer;
+			fill: inherit;
+			stroke: none;
+			transition: fill 0.24s cubic-bezier(0.37, 0, 0.745, 0.715);
+		}
+
+		#globe-svg {
+			fill: #8c96a0;
+		}
+
+		.globe-tooltip {
+			background: #FEFEFE;
+			border: 2px solid red;
+			padding: 4px 6px;
+			position: absolute;
+		}
+
+		.graticule {
+			fill: none;
+			stroke: #CCC;
+		}
+
+	</style>
+	<!-- styles: -->
+	<body>
+
+		<!-- :main content -->
+		<main>
+			<div class='content-wrapper'>
+				<div class='text-wrapper'>
+					<h2 class='page-title'>
+						Flag Hexcode Picker
+					</h2>
+					<p class='initial-text'>
+						Click on the desired country below or select the country using the dropdown menu in order to receive the hexcode values for the colors of the corresponding nation's flag.
+					</p>
+				</div>
+
+				<div class='map-outer-container'>
+					<div id='globe-map' class='map-proper-container'>
+					</div>
+					<div class='input-selection' id='side-content'>
+					</div>
+					<div id='nation-info'>
+					</div>
+				</div>
+			</div>
+		</main>
+		<!-- main: -->
+
+		<footer id='footer'>
+			<p class='info-plug'>
+				Created by <a href='//curtiszki.github.io'>Curtis Grotzke</a>. This source code can be found on <a href='//github.com/curtiszki/world-flag-hexcode'>Github</a>
+			</p>
+		</footer>
+
+		<!-- scripts here -->
+		<script src='http://d3js.org/d3.v4.min.js'></script>
+		<script src='http://d3js.org/topojson.v1.min.js'></script>
+		<script src="http://d3js.org/queue.v1.min.js"></script>
+
+		<!-- create the d3 map -->
+		<script type="text/javascript">
+
+			var width = 400,
+			height = 400;
+
+			var projection = d3.geoOrthographic()
+				.scale( (width+height)/4.2 )
+				.rotate([0, 0])
+				.translate([width/2, height/2])
+				.precision(0.1)
+				.clipAngle(90);
+
+			var graticule = d3.geoGraticule();
+
+			var path = d3.geoPath()
+			.projection(projection);
+
+			var svg = d3.select('#globe-map').append('svg')
+			.attr('id', 'globe-svg')
+			.attr('width', width)
+			.attr('height', height);
+
+			svg.append('path')
+			.datum({type: 'Sphere'})
+			.attr('id', 'd3-sphere')
+			.attr('d', path);
+
+			svg.append('path')
+			.datum(graticule)
+			.attr('class', 'graticule')
+			.attr('d', path);
+
+			// append the selection list of nations
+			var list = d3.select('#side-content')
+			.append('select')
+			.attr('id', 'globe-select')
+			.attr('name', 'country');
+
+			var tooltip = d3.select('#globe-map')
+				.append('div')
+				.attr('class', 'globe-tooltip');
+
+			queue()
+			.defer(d3.json, './geodata/countries.json')
+			.defer(d3.tsv, './geodata/country-names.tsv')
+			.await(ready);
+
+			function ready(error, earth, countryNames){
+				if (error) throw error;
+
+				// create an array of countries to map selection to path.
+				countries = [],
+				countryData = topojson.feature(earth, earth.objects.countries).features;
+
+				countryNames.forEach(function(d){
+					countries[d.id] = d.name;
+					// append items to the select element.
+					item = list.append('option')
+					item.text(d.name)
+					item.property('value', d.id);
+				});
+
+				// add the land and borders.
+				var land = svg.selectAll('path.land')
+					.data(countryData)
+					.enter().append('path')
+					.attr('class', 'country')
+					.attr('data-id', function(d, i) {
+						return d.id;
+					})
+					.attr('d', path);
+
+				svg.append('path')
+					.datum(topojson.mesh(earth, earth.objects.countries))
+					.attr('class', 'border')
+					.attr('d', path);
+
+				// :events
+				var vertOffset = -22,
+				horOffset = 8,
+				nationPaths = svg.selectAll('path.country');
+
+				var hoverFocused = '#a5dfbe',
+					focusedFill = '#b0d3bf';
+
+				var focusTarget = document.getElementById('nation-info');
+
+				land.call(
+					d3.drag()
+					// subject accessor function.
+					.subject(function() {
+						var r = projection.rotate();
+						return {
+							x: r[0],
+							y: r[1]
+						}
+					})
+					.on('drag', function(d, i) {
+						var rotate = projection.rotate();
+						projection.rotate([d3.event.x, -d3.event.y, rotate[2]]);
+						svg.selectAll('path').attr('d', path);
+					})
+				);
+
+
+				land.on('mouseover', function(d) {
+					tooltip.text(countries[d.id])
+						.style('display', 'block')
+						.style('left', (d3.event.offsetX) + horOffset +'px')
+						.style('top', (d3.event.offsetY) + vertOffset + 'px');
+
+					this.className.baseVal.indexOf('focused') > -1 ? this.style.fill = hoverFocused : this.style.fill = '#6f7a85';
+
+				})
+				.on('mouseout', function(d) {
+					tooltip.style('display', 'none');
+					this.className.baseVal.indexOf('focused') > -1 ? this.style.fill = focusedFill : this.style.fill = 'inherit';
+				})
+				.on('mousemove', function(d) {
+					tooltip.style('left', (d3.event.offsetX) + horOffset + 'px')
+						.style('top', (d3.event.offsetY) + vertOffset + 'px');
+				})
+				.on('click', function(d) {
+					var country;
+
+					for (i = 0; i < countryData.length; i++) {
+						if (countryData[i].id == this.getAttribute('data-id')) {
+							country = countryData[i]
+							break;
+						}
+					}
+
+					if (country) {
+
+						var centroid = d3.geoCentroid(country);
+						svg.selectAll('path.focused')
+							.classed('focused', false)
+							.style('fill', 'inherit');
+						d3.select(this).classed('focused', true)
+						.style('fill', hoverFocused);
+
+						(function transition() {
+							d3.transition()
+							.duration(760)
+							.tween('rotate', function() {
+								var r = d3.interpolate(projection.rotate(), [-centroid[0], -centroid[1]]);
+								return function(t) {
+									projection.rotate(r(t));
+									svg.selectAll('path').attr('d', path);
+								};
+							})
+							})();
+
+							fireFocusEvent();
+					}
+				});
+
+				// events:
+
+				d3.select('select').on('change', function() {
+					var rotate = projection.rotate(),
+					selectedCountry = optionCountry(countryData, this),
+					p = d3.geoCentroid(selectedCountry);
+
+					(function transition() {
+						d3.transition()
+						.duration(1400)
+						.tween('rotate', function() {
+							var r = d3.interpolate(projection.rotate(), [-p[0], -p[1]]);
+							return function(t) {
+								projection.rotate(r(t));
+								svg.selectAll('path').attr('d', path)
+									.classed('focused', function(d, i) {
+										return d.id == selectedCountry.id ? focused = d : false;});
+							};
+						})
+						})();
+
+						fireFocusEvent();
+				});
+
+				focusTarget.addEventListener('CountryFocus', function(e){
+					console.log('I received the event!!! HUZZAAAHHH MUTHA!!!');
+				})
+
+				// get the corresponding country path
+				function optionCountry (country, selectedItem) {
+					for (var i = 0; i < country.length; i++) {
+						if (country[i].id == selectedItem.value) {
+							return country[i];
+						}
+					}
+				};
+
+				// custom event to be fired
+				function fireFocusEvent() {
+
+					var fEventData = {
+						name: 'Focus Event'
+					}
+					var focusedEvent = document.createEvent('Event');
+					event.initCustomEvent('CountryFocus', true, true, fEventData);
+					focusTarget.dispatchEvent(focusedEvent);
+				}
+
+			};
+
+		</script>
+		<!-- d3 map: -->
+		<!-- scripts: -->
+	</body>
+</html>
