@@ -143,7 +143,9 @@
 				countryData = topojson.feature(earth, earth.objects.countries).features;
 
 				countryNames.forEach(function(d){
-					countries[d.id] = d.name;
+					var flag_colors = retrieveColorValues(d);
+					countries[d.id] = {'name': d.name,
+				 	'colors': flag_colors};
 					// append items to the select element.
 					item = list.append('option')
 					item.text(d.name)
@@ -164,6 +166,26 @@
 					.datum(topojson.mesh(earth, earth.objects.countries))
 					.attr('class', 'border')
 					.attr('d', path);
+
+				// :callbacks
+
+				function retrieveColorValues(d) {
+					var keys = Object.keys(d),
+					hex_values = [];
+
+					for (var i = 0; i < keys.length; i++) {
+
+						if (keys[i].search(/^flag+?/ig) > -1) {
+							hex_values.push(d[keys[i]]);
+						}
+					}
+
+					return hex_values;
+				}
+				// find the flag colors, and national name based on id
+				function retrieveCountryValues(id) {
+				}
+				// callbacks:
 
 				// :events
 				var vertOffset = -22,
@@ -187,14 +209,14 @@
 					})
 					.on('drag', function(d, i) {
 						var rotate = projection.rotate();
-						projection.rotate([d3.event.x, -d3.event.y, rotate[2]]);
+						projection.rotate([d3.event.x/3, -d3.event.y/3, rotate[2]]);
 						svg.selectAll('path').attr('d', path);
 					})
 				);
 
 
 				land.on('mouseover', function(d) {
-					tooltip.text(countries[d.id])
+					tooltip.text(countries[d.id].name)
 						.style('display', 'block')
 						.style('left', (d3.event.offsetX) + horOffset +'px')
 						.style('top', (d3.event.offsetY) + vertOffset + 'px');
@@ -241,7 +263,7 @@
 							})
 							})();
 
-							fireFocusEvent();
+							fireFocusEvent(this.getAttribute('data-id'));
 					}
 				});
 
@@ -265,13 +287,12 @@
 							};
 						})
 						})();
-
-						fireFocusEvent();
+						fireFocusEvent(this.value);
 				});
 
-				focusTarget.addEventListener('CountryFocus', function(e){
-					console.log('I received the event!!! HUZZAAAHHH MUTHA!!!');
-				})
+				focusTarget.addEventListener('countryFocus', function(e){
+					retrieveCountryValues(e.detail);
+				});
 
 				// get the corresponding country path
 				function optionCountry (country, selectedItem) {
@@ -283,16 +304,12 @@
 				};
 
 				// custom event to be fired
-				function fireFocusEvent() {
+				function fireFocusEvent(id) {
 
-					var fEventData = {
-						name: 'Focus Event'
-					}
-					var focusedEvent = document.createEvent('Event');
-					event.initCustomEvent('CountryFocus', true, true, fEventData);
+					var details = {};
+					var focusedEvent = new CustomEvent('countryFocus', {'detail': id});
 					focusTarget.dispatchEvent(focusedEvent);
 				}
-
 			};
 
 		</script>
