@@ -138,18 +138,20 @@
 			.attr('class', 'active-option vertical-bob')
 			.append('span')
 			.attr('class', 'active-icon')
-			.style('left', '10px');
+			.style('left', '4px');
 
-			list.on('click', function() {
-					var currentEl = d3.select(this);
-					currentEl.classed('active-select', !currentEl.classed('active-select'));
-
-					document.addEventListener('click', function(e){
-						if (e.target.tagName !== 'SELECT') {
-							currentEl.classed('active-select', false);
-							document.removeEventListener('click', arguments.callee);
-						}
-					});
+			d3.select('#side-content').on('click', function() {
+				var currentEl = d3.select(this);
+				currentEl.classed('active-select', !currentEl.classed('active-select'));
+/*
+				document.addEventListener('click', function(e){
+					console.log(e);
+					if (e.target.tagName !== 'SELECT') {
+						currentEl.classed('active-select', false);
+						document.removeEventListener('click', arguments.callee);
+					}
+				});
+*/
 			});
 
 			var tooltip = d3.select('#globe-map')
