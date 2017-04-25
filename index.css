@@ -22,7 +22,7 @@ body {
 
 .active-icon:after {
 	content: '\e904';
-	left: 10px;
+	left: 8px;
 	line-height: 0;
 	position: absolute;
 	top: 50%;
@@ -64,8 +64,14 @@ body {
 	color: white;
 }
 
-.active-select {
-	background-color: red;
+.active-select
+.active-option {
+	background-color: cornflowerblue;
+}
+
+.active-select
+.active-option:hover {
+  background-color: seagreen;
 }
 
 .active-select .active-option {
@@ -92,10 +98,64 @@ body {
 	text-indent: 14px;
 }
 
-
 .flag-color {
 	border-style: solid;
 	border-width: 2px;
+  cursor: pointer;
+  display: inline-block;
+  min-height: 110px;
+  min-width: 220px;
+  position: relative;
+  width: 100%;
+}
+
+.flag-color:before {
+  background-color: rgb(155, 155, 155);
+  background-color: rgba(0, 0, 0, 0.26);
+  bottom: 0;
+  content: '';
+  opacity: 0;
+  top: 0;
+  z-index: 0;
+}
+
+.flag-color:before,
+.flag-color:after {
+  left: 0;
+  position: absolute;
+  right: 0;
+  transition: opacity 0.4s ease-in-out;
+}
+
+.flag-color:after {
+  color: #FFF;
+  content: 'placeholder';
+  line-height: 0;
+  opacity: 0;
+  text-align: center;
+  top: 50%;
+  z-index: 10;
+}
+
+.flag-color:hover:before,
+.flag-color:hover:after {
+  opacity: 1;
+}
+
+#flag-info {
+  margin: 0 auto;
+  opacity: 0;
+  transform: perspective(1px) translateY(-100%) translateZ(0px);
+  transform-origin: 50% 0;
+  width: 88%;
+}
+
+#flag-info.active-flag {
+  animation-duration: 0.12s;
+  animation-fill-mode: forwards;
+  animation-name: info-animate;
+  animation-timing-function: linear;
+  padding-bottom: 20px;
 }
 
 .flag-inline-display {
@@ -103,6 +163,19 @@ body {
 	margin: 0;
 	padding: 0;
 	vertical-align: top;
+}
+
+.flag-name {
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+#flag-nation-colors {
+  text-align: right;
+}
+
+#flag-nation-colors li {
+  padding: 14px 0;
 }
 
 #footer {
@@ -113,11 +186,15 @@ body {
 	text-decoration: none;
 }
 
+#footer a:hover {
+  color: orangered;
+}
+
 #globe-map {
 	margin: 20px 0;
 	position: relative;
 	shape-rendering: geometricPrecision;
-	width: 44%;
+	width: 55%;
 }
 
 #globe-select {
@@ -154,13 +231,18 @@ body {
 	white-space: nowrap;
 }
 
-#nation-info {
-		width: 56%;
-}
-
 .map-outer-container {
 	padding: 14px 8px;
 	white-space: nowrap;
+}
+
+#nation-info {
+  width: 48%;
+}
+
+#nation-title {
+  font-size: 1.13rem;
+  text-align: center;
 }
 
 .page-title {
@@ -170,7 +252,7 @@ body {
 #side-content {
 	position: relative;
 	max-width: 580px;
-	width: 52%;
+	width: 45%;
 }
 
 #side-content.active-select #globe-select {
@@ -313,6 +395,24 @@ body {
 
 // :keyframes
 @keyframes bob {
+}
+
+@keyframes info-animate {
+  0% {
+    line-height: 0;
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+
+  22% {
+    transform: translateY(0%);
+  }
+
+  100% {
+    line-height: 1;
+    opacity: 1;
+    transform: translateY(0%);
+  }
 }
 
 

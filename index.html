@@ -1,5 +1,5 @@
-<!DOCTYPE html>
 <!-- web map -->
+<!DOCTYPE html>
 <html lang="en">
 
 	<head>
@@ -69,12 +69,14 @@
 					<div id='globe-map' class='map-proper-container flag-inline-display'>
 					</div>
 					<div id='nation-info' class='flag-inline-display'>
+						<div id='flag-info' class='inner-info-wrap'>
+							<h4 id='nation-title'>
+							</h4>
+							<ul id='flag-nation-colors'>
+							</ul>
+						</div>
 						<div class='input-selection' id='side-content'>
 						</div>
-						<h4 id='nation-title'>
-						</h4>
-						<ul id='flag-nation-colors'>
-						</ul>
 					</div>
 				</div>
 			</div>
@@ -98,6 +100,15 @@
 
 			var width = 400,
 			height = 400;
+
+			// :event vars
+			var vertOffset = -22,
+			horOffset = 8;
+			var hoverFocused = '#a5dfbe',
+			focusedFill = '#b0d3bf';
+			var focusTarget = document.getElementById('nation-info'),
+				fColorsEl = focusTarget.querySelector('#flag-nation-colors');
+			// event vars:
 
 			var projection = d3.geoOrthographic()
 				.scale( (width+height)/4.2 )
@@ -138,7 +149,7 @@
 			.attr('class', 'active-option vertical-bob')
 			.append('span')
 			.attr('class', 'active-icon')
-			.style('left', '4px');
+			.style('left', '-2px');
 
 			d3.select('#side-content').on('click', function() {
 				var currentEl = d3.select(this);
@@ -177,13 +188,16 @@
 					// append items to the select element.
 					item = list.append('li');
 					item.text(d.name);
-					item.property('value', d.id);
+					item.attr('data-id', d.id);
 					item.attr('class', 'sweep-to-bottom');
 					item.on('click', function(){
 						d3.select('.active-option')
 							.text(this.childNodes[0].nodeValue)
 							.append('span')
 							.attr('class', 'active-icon');
+
+						var element = this;
+						countrySelect(element, d);
 					});
 				});
 
@@ -202,206 +216,218 @@
 					.attr('class', 'border')
 					.attr('d', path);
 
-				// :callbacks
+					land.call(
+						d3.drag()
+						// subject accessor function.
+						.subject(function() {
+							var r = projection.rotate();
+							return {
+								x: r[0],
+								y: r[1]
+							}
+						})
+						.on('drag', function(d, i) {
+							var rotate = projection.rotate();
+							projection.rotate([d3.event.x/3, -d3.event.y/3, rotate[2]]);
+							svg.selectAll('path').attr('d', path);
+						})
+					);
 
-				function classCheck(elName, className) {
-					if (elName.className.indexOf(className) > -1) {
-						var reg = new RegExp('/(\W)?'+className);
-						elName.className.replace(reg, '');
-					} else {
-						elName.className += ' '+className;
-					}
-				}
-
-				function colorizeFlagColors(className) {
-					var elements = document.getElementsByClassName(className);
-					for (var i = 0; i < elements.length; i++) {
-						elements[i].style.borderColor = '#CDCDCD';
-						elements[i].style.backgroundColor = elements[i].getAttribute('data-color');
-					}
-				}
-
-				function displaySelectedNation(nation_data) {
-					if (nation_data.name) {
-						focusTarget.querySelector('#nation-title').innerText = nation_data.name;
-					} else {
-						focusTarget.querySelector('#nation-title').innerText = 'Unknown Nation';
-					}
-
-					if (nation_data.flag_colors) {
-						var fColors = nation_data.flag_colors,
-						fColorsEl = focusTarget.querySelector('#flag-nation-colors');
-						fColorsEl.innerHTML = '';
-						for (var i = 0; i < fColors.length; i++) {
-							fColorsEl.innerHTML += "<li class='flag-color' data-color="+fColors[i]+">"+fColors[i]+"</li>";
-						}
-					}
-				}
-
-				function retrieveColorValues(d) {
-					var keys = Object.keys(d),
-					hex_values = [];
-
-					for (var i = 0; i < keys.length; i++) {
-
-						if (keys[i].search(/^flag+?/ig) > -1) {
-							hex_values.push(d[keys[i]]);
-						}
-					}
-
-					return hex_values;
-				}
-				// find the flag colors, and national name based on id
-				function retrieveCountryValues(id) {
-					var values = {
-						'name': countries[id].name,
-						'flag_colors': countries[id].colors
-					}
-					return values;
-				}
-
-				// toggle the respective class
-
-				function toggleClass(elName, className) {
-					var rElement = document.getElementsByClassName(className);
-
-					if (rElement.length > 1) {
-						for (var i = 0; i < rElement.length; i++) {
-							classCheck(rElement[i], className);
-						}
-					} else {
-						classCheck(rElement[0], className);
-					}
-				}
-
-
-				// callbacks:
-
-				// :events
-				var vertOffset = -22,
-				horOffset = 8,
-				nationPaths = svg.selectAll('path.country');
-
-				var hoverFocused = '#a5dfbe',
-					focusedFill = '#b0d3bf';
-
-				var focusTarget = document.getElementById('nation-info');
-
-				land.call(
-					d3.drag()
-					// subject accessor function.
-					.subject(function() {
-						var r = projection.rotate();
-						return {
-							x: r[0],
-							y: r[1]
-						}
-					})
-					.on('drag', function(d, i) {
-						var rotate = projection.rotate();
-						projection.rotate([d3.event.x/3, -d3.event.y/3, rotate[2]]);
-						svg.selectAll('path').attr('d', path);
-					})
-				);
-
-
-				land.on('mouseover', function(d) {
-					tooltip.text(countries[d.id].name)
+					land.on('mouseover', function(d) {
+						tooltip.text(countries[d.id].name)
 						.style('display', 'block')
 						.style('left', (d3.event.offsetX) + horOffset +'px')
 						.style('top', (d3.event.offsetY) + vertOffset + 'px');
 
-					this.className.baseVal.indexOf('focused') > -1 ? this.style.fill = hoverFocused : this.style.fill = '#6f7a85';
-
-				})
-				.on('mouseout', function(d) {
-					tooltip.style('display', 'none');
-					this.className.baseVal.indexOf('focused') > -1 ? this.style.fill = focusedFill : this.style.fill = 'inherit';
-				})
-				.on('mousemove', function(d) {
-					tooltip.style('left', (d3.event.offsetX) + horOffset + 'px')
+						this.className.baseVal.indexOf('focused') > -1 ? this.style.fill = hoverFocused : this.style.fill = '#6f7a85';
+					})
+					.on('mouseout', function(d) {
+						tooltip.style('display', 'none');
+						this.className.baseVal.indexOf('focused') > -1 ? this.style.fill = focusedFill : this.style.fill = 'inherit';
+					})
+					.on('mousemove', function(d) {
+						tooltip.style('left', (d3.event.offsetX) + horOffset + 'px')
 						.style('top', (d3.event.offsetY) + vertOffset + 'px');
-				})
-				.on('click', function(d) {
-					var country;
+					})
+					.on('click', function(d) {
+						var element = this;
+						countrySelect(element, d);
+					});
+			};
 
-					for (i = 0; i < countryData.length; i++) {
-						if (countryData[i].id == this.getAttribute('data-id')) {
-							country = countryData[i]
-							break;
-						}
+			// :callbacks
+
+			function animateInfo() {
+				var infoEl = d3.select('#flag-info');
+				if (!infoEl.classed('active-flag')) {
+					infoEl.classed('active-flag', true);
+				}
+			}
+
+			function classCheck(elName, className) {
+				if (elName.className.indexOf(className) > -1) {
+					var reg = new RegExp('/(\W)?'+className);
+					elName.className.replace(reg, '');
+				} else {
+					elName.className += ' '+className;
+				}
+			}
+
+			function colorizeFlagColors(className) {
+				var elements = document.getElementsByClassName(className);
+				for (var i = 0; i < elements.length; i++) {
+					elements[i].style.borderColor = '#CDCDCD';
+					elements[i].style.backgroundColor = elements[i].getAttribute('data-color');
+				}
+			}
+
+			function countrySelect(el, data) {
+				var country,
+				countryPath;
+
+				for (i = 0; i < countryData.length; i++) {
+					if (countryData[i].id == el.getAttribute('data-id')) {
+						country = countryData[i];
+						var qSelect = 'path[data-id='+'\"'+el.getAttribute('data-id')+'\"'+']';
+						countryPath = d3.select(qSelect);
+						break;
 					}
+				}
+				if (country) {
 
-					if (country) {
+					var centroid = d3.geoCentroid(country);
+					svg.selectAll('path.focused')
+					.classed('focused', false)
+					.style('fill', 'inherit');
+					countryPath.classed('focused', true)
+					.style('fill', hoverFocused);
 
-						var centroid = d3.geoCentroid(country);
-						svg.selectAll('path.focused')
-							.classed('focused', false)
-							.style('fill', 'inherit');
-						d3.select(this).classed('focused', true)
-						.style('fill', hoverFocused);
+					(function transition() {
+						d3.transition()
+						.duration(760)
+						.tween('rotate', function() {
+							var r = d3.interpolate(projection.rotate(), [-centroid[0], -centroid[1]]);
+							return function(t) {
+								projection.rotate(r(t));
+								svg.selectAll('path').attr('d', path);
+							};
+						})
+					})();
 
-						(function transition() {
-							d3.transition()
-							.duration(760)
-							.tween('rotate', function() {
-								var r = d3.interpolate(projection.rotate(), [-centroid[0], -centroid[1]]);
-								return function(t) {
-									projection.rotate(r(t));
-									svg.selectAll('path').attr('d', path);
-								};
-							})
-							})();
+					fireFocusEvent(el.getAttribute('data-id'));
+				}
+			}
 
-							fireFocusEvent(this.getAttribute('data-id'));
+			function displaySelectedNation(nation_data) {
+				if (nation_data.name) {
+					focusTarget.querySelector('#nation-title').innerText = nation_data.name;
+				} else {
+					focusTarget.querySelector('#nation-title').innerText = 'Unknown Nation';
+				}
+
+				if (nation_data.flag_colors) {
+					var fColors = nation_data.flag_colors;
+					fColorsEl.innerHTML = '';
+					for (var i = 0; i < fColors.length; i++) {
+						fColorsEl.innerHTML += "<li><p class='flag-name'>"+fColors[i]+"</p><div class='flag-color' data-color="+fColors[i]+"></div></li>";
+					}
+				}
+			}
+
+			// get the corresponding country path
+			function optionCountry (country, selectedItem) {
+				for (var i = 0; i < country.length; i++) {
+					if (country[i].id == selectedItem.value) {
+						return country[i];
+					}
+				}
+			};
+
+			function retrieveColorValues(d) {
+				var keys = Object.keys(d),
+				hex_values = [];
+
+				for (var i = 0; i < keys.length; i++) {
+
+					if (keys[i].search(/^flag+?/ig) > -1) {
+						hex_values.push(d[keys[i]]);
+					}
+				}
+
+				return hex_values;
+			}
+			// find the flag colors, and national name based on id
+			function retrieveCountryValues(id) {
+				var values = {
+					'name': countries[id].name,
+					'flag_colors': countries[id].colors
+				}
+				return values;
+			}
+
+			// toggle the respective class
+
+			function toggleClass(elName, className) {
+				var rElement = document.getElementsByClassName(className);
+
+				if (rElement.length > 1) {
+					for (var i = 0; i < rElement.length; i++) {
+						classCheck(rElement[i], className);
+					}
+				} else {
+					classCheck(rElement[0], className);
+				}
+			}
+
+
+			// callbacks:
+
+			// :events
+
+
+			var nationPaths = svg.selectAll('path.country');
+
+
+
+			d3.select('select').on('change', function() {
+				var rotate = projection.rotate(),
+				selectedCountry = optionCountry(countryData, this),
+				p = d3.geoCentroid(selectedCountry);
+
+				(function transition() {
+					d3.transition()
+					.duration(1400)
+					.tween('rotate', function() {
+						var r = d3.interpolate(projection.rotate(), [-p[0], -p[1]]);
+						return function(t) {
+							projection.rotate(r(t));
+							svg.selectAll('path').attr('d', path)
+							.classed('focused', function(d, i) {
+								return d.id == selectedCountry.id ? focused = d : false;});
+							};
+						})
+					})();
+					fireFocusEvent(this.value);
+				});
+
+				focusTarget.addEventListener('countryFocus', function(e){
+					var animated = false;
+					displaySelectedNation(retrieveCountryValues(e.detail));
+					colorizeFlagColors('flag-color');
+					if (!animated) {
+						animateInfo();
 					}
 				});
 
 				// events:
 
-				d3.select('select').on('change', function() {
-					var rotate = projection.rotate(),
-					selectedCountry = optionCountry(countryData, this),
-					p = d3.geoCentroid(selectedCountry);
-
-					(function transition() {
-						d3.transition()
-						.duration(1400)
-						.tween('rotate', function() {
-							var r = d3.interpolate(projection.rotate(), [-p[0], -p[1]]);
-							return function(t) {
-								projection.rotate(r(t));
-								svg.selectAll('path').attr('d', path)
-									.classed('focused', function(d, i) {
-										return d.id == selectedCountry.id ? focused = d : false;});
-							};
-						})
-						})();
-						fireFocusEvent(this.value);
-				});
-
-				focusTarget.addEventListener('countryFocus', function(e){
-					displaySelectedNation(retrieveCountryValues(e.detail));
-					colorizeFlagColors('flag-color');
-				});
-
-				// get the corresponding country path
-				function optionCountry (country, selectedItem) {
-					for (var i = 0; i < country.length; i++) {
-						if (country[i].id == selectedItem.value) {
-							return country[i];
-						}
-					}
-				};
 
 				// custom event to be fired
 				function fireFocusEvent(id) {
-
 					var details = {};
 					var focusedEvent = new CustomEvent('countryFocus', {'detail': id});
 					focusTarget.dispatchEvent(focusedEvent);
 				}
-			};
 
 		</script>
 		<!-- d3 map: -->
