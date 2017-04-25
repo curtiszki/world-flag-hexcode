@@ -58,6 +58,7 @@
 				<div class='text-wrapper'>
 					<h2 class='page-title'>
 						Flag Hexcode Picker
+						</span>
 					</h2>
 					<p class='initial-text'>
 						Click on the desired country below or select the country using the dropdown menu in order to receive the hexcode values for the colors of the corresponding nation's flag.
@@ -65,11 +66,15 @@
 				</div>
 
 				<div class='map-outer-container'>
-					<div id='globe-map' class='map-proper-container'>
+					<div id='globe-map' class='map-proper-container flag-inline-display'>
 					</div>
-					<div class='input-selection' id='side-content'>
-					</div>
-					<div id='nation-info'>
+					<div id='nation-info' class='flag-inline-display'>
+						<div class='input-selection' id='side-content'>
+						</div>
+						<h4 id='nation-title'>
+						</h4>
+						<ul id='flag-nation-colors'>
+						</ul>
 					</div>
 				</div>
 			</div>
@@ -89,6 +94,7 @@
 
 		<!-- create the d3 map -->
 		<script type="text/javascript">
+			var clickItem = false;
 
 			var width = 400,
 			height = 400;
@@ -122,9 +128,29 @@
 
 			// append the selection list of nations
 			var list = d3.select('#side-content')
-			.append('select')
+			.append('ul')
 			.attr('id', 'globe-select')
-			.attr('name', 'country');
+			.attr('data-name', 'country');
+
+			var activeOption = d3.select('#side-content')
+			.append('div')
+			.text('--- Select a Country ---')
+			.attr('class', 'active-option vertical-bob')
+			.append('span')
+			.attr('class', 'active-icon')
+			.style('left', '10px');
+
+			list.on('click', function() {
+					var currentEl = d3.select(this);
+					currentEl.classed('active-select', !currentEl.classed('active-select'));
+
+					document.addEventListener('click', function(e){
+						if (e.target.tagName !== 'SELECT') {
+							currentEl.classed('active-select', false);
+							document.removeEventListener('click', arguments.callee);
+						}
+					});
+			});
 
 			var tooltip = d3.select('#globe-map')
 				.append('div')
@@ -147,9 +173,16 @@
 					countries[d.id] = {'name': d.name,
 				 	'colors': flag_colors};
 					// append items to the select element.
-					item = list.append('option')
-					item.text(d.name)
+					item = list.append('li');
+					item.text(d.name);
 					item.property('value', d.id);
+					item.attr('class', 'sweep-to-bottom');
+					item.on('click', function(){
+						d3.select('.active-option')
+							.text(this.childNodes[0].nodeValue)
+							.append('span')
+							.attr('class', 'active-icon');
+					});
 				});
 
 				// add the land and borders.
@@ -169,6 +202,40 @@
 
 				// :callbacks
 
+				function classCheck(elName, className) {
+					if (elName.className.indexOf(className) > -1) {
+						var reg = new RegExp('/(\W)?'+className);
+						elName.className.replace(reg, '');
+					} else {
+						elName.className += ' '+className;
+					}
+				}
+
+				function colorizeFlagColors(className) {
+					var elements = document.getElementsByClassName(className);
+					for (var i = 0; i < elements.length; i++) {
+						elements[i].style.borderColor = '#CDCDCD';
+						elements[i].style.backgroundColor = elements[i].getAttribute('data-color');
+					}
+				}
+
+				function displaySelectedNation(nation_data) {
+					if (nation_data.name) {
+						focusTarget.querySelector('#nation-title').innerText = nation_data.name;
+					} else {
+						focusTarget.querySelector('#nation-title').innerText = 'Unknown Nation';
+					}
+
+					if (nation_data.flag_colors) {
+						var fColors = nation_data.flag_colors,
+						fColorsEl = focusTarget.querySelector('#flag-nation-colors');
+						fColorsEl.innerHTML = '';
+						for (var i = 0; i < fColors.length; i++) {
+							fColorsEl.innerHTML += "<li class='flag-color' data-color="+fColors[i]+">"+fColors[i]+"</li>";
+						}
+					}
+				}
+
 				function retrieveColorValues(d) {
 					var keys = Object.keys(d),
 					hex_values = [];
@@ -184,7 +251,28 @@
 				}
 				// find the flag colors, and national name based on id
 				function retrieveCountryValues(id) {
+					var values = {
+						'name': countries[id].name,
+						'flag_colors': countries[id].colors
+					}
+					return values;
 				}
+
+				// toggle the respective class
+
+				function toggleClass(elName, className) {
+					var rElement = document.getElementsByClassName(className);
+
+					if (rElement.length > 1) {
+						for (var i = 0; i < rElement.length; i++) {
+							classCheck(rElement[i], className);
+						}
+					} else {
+						classCheck(rElement[0], className);
+					}
+				}
+
+
 				// callbacks:
 
 				// :events
@@ -291,7 +379,8 @@
 				});
 
 				focusTarget.addEventListener('countryFocus', function(e){
-					retrieveCountryValues(e.detail);
+					displaySelectedNation(retrieveCountryValues(e.detail));
+					colorizeFlagColors('flag-color');
 				});
 
 				// get the corresponding country path

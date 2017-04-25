@@ -1,20 +1,88 @@
+@font-face {
+  font-family: 'icomoon';
+  src:  url('fonts/icomoon.eot?bgnck6');
+  src:  url('fonts/icomoon.eot?bgnck6#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?bgnck6') format('truetype'),
+    url('fonts/icomoon.woff?bgnck6') format('woff'),
+    url('fonts/icomoon.svg?bgnck6#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
 html {
 	font-size: 16px;
 }
 body {
 	font-family: monospace;
 }
-.content-wrapper {
-	box-sizing: border-box;
-	margin: 0 auto;
-	min-height: 100%;
-	padding: 42px 24px 18px;
-	width: 96%;
+
+.active-icon {
+	position: relative;
 }
 
-.page-title {
-	font-size: 1.2em;
+.active-icon:after {
+	content: '\e904';
+	left: 10px;
+	line-height: 0;
+	position: absolute;
+	top: 50%;
+
+	font-family: 'icomoon' !important;
+	speak: none;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
+
+.active-option {
+	background: rgb(255, 255, 0);
+	background: rgba(255, 255, 0, 0.3);
+	border: 1px inset indianred;
+	cursor: pointer;
+	position: relative;
+	transition: background 0.35s ease, color 0.3s ease-out;
+	z-index: 50;
+}
+
+.active-option,
+#globe-select li {
+	box-sizing: border-box;
+	display: block;
+	padding: 12px 0px 12px 12px;
+	width: 100%;
+}
+
+
+.active-option:hover {
+	background: teal;
+	color: white;
+}
+
+.active-select {
+	background-color: red;
+}
+
+.active-select .active-option {
+	border-bottom-style: none;
+}
+
+.active-select .active-option,
+.active-select #globe-select li {
+
+}
+.content-wrapper {
+	background: #CDCDCD;
+	box-sizing: border-box;
+	margin: 12px auto;
+	min-height: 100%;
+	padding: 18px 24px 18px;
+	width: 98%;
+}
+
 
 .initial-text {
 	line-height: 1.25em;
@@ -22,10 +90,17 @@ body {
 	text-indent: 14px;
 }
 
-#globe-map {
-	margin: 20px 0;
-	position: relative;
-	shape-rendering: geometricPrecision;
+
+.flag-color {
+	border-style: solid;
+	border-width: 2px;
+}
+
+.flag-inline-display {
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+	vertical-align: top;
 }
 
 #footer {
@@ -36,6 +111,215 @@ body {
 	text-decoration: none;
 }
 
+#globe-map {
+	margin: 20px 0;
+	position: relative;
+	shape-rendering: geometricPrecision;
+	width: 44%;
+}
+
+#globe-select {
+	background: aliceblue;
+	cursor: pointer;
+	max-width: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
+	position: absolute;
+	top: 100%;
+	width: 100%;
+}
+
+#globe-select li:hover {
+	background: orangered;
+	transition: background 0.25s ease;
+}
+
+#globe-select li:not(:last-child) {
+	border-bottom: 1px solid #ACACAC;
+}
+
+.globe-tooltip {
+	display: none;
+	white-space: nowrap;
+}
+
+#nation-info {
+		width: 56%;
+}
+
 .map-outer-container {
 	padding: 14px 8px;
+	white-space: nowrap;
 }
+
+.page-title {
+	font-size: 1.2em;
+}
+
+#side-content {
+	position: relative;
+	max-width: 580px;
+	width: 52%;
+}
+
+// from ian lunn's hover.css
+
+.sweep-to-bottom {
+	position: relative;
+	transform: perspective(1px) translateZ(0px);
+	-webkit-transform: perspective(1px) translateZ(0px);
+	transition-duration: 0.3s;
+	-webkit-transition-duration: 0.3s;
+	transform-property: color;
+	-webkit-transition-property: 0.3s;
+}
+
+.sweep-to-bottom {
+	position: relative;
+	transform: perspective(1px) translateZ(0px);
+	-webkit-transform: perspective(1px) translateZ(0px);
+	transition-duration:  0.3s;
+	-webkit-transition-duration: 0.3s;
+	transition-property: color;
+	-webkit-transition-property: color;
+}
+
+.sweep-to-bottom:before {
+	background: #BCBCBC;
+	bottom: 0;
+	content: '';
+	left: 0;
+	position: absolute;
+	right: 0;
+	top: 0;
+	transform: scaleY(0);
+	-webkit-transform: scaleY(0);
+	transform-origin: 50% 0;
+	-webkit-transform-origin: 50% 0;
+	transition-duration: 0.24s;
+	-webkit-transition-duration: 0.24s;
+	transition-property: transform;
+	-webkit-transition-property: transform;
+	transition-timing-function: ease-out;
+	-webkit-transition-timing-function: ease-out;
+	z-index: -1;
+}
+
+.sweep-to-bottom:active,
+.sweep-to-bottom:focus,
+.sweep-to-bottom:hover {
+	color: white;
+}
+
+.sweep-to-bottom:active:before,
+.sweep-to-bottom:focus:before,
+.sweep-to-bottom:hover:before {
+	transform: scaleY(1);
+	-webkit-transform: scaleY(1);
+}
+
+.vertical-bob,
+.active-icon {
+	transform: perspective(1px) translateZ(0px);
+}
+.vertical-bob:hover:after,
+.vertical-bob:hover .active-icon:after {
+	animation-delay: 0s, 0.6s;
+	animation-direction: normal, alternate;
+	animation-duration: 0.6s, 1.2s;
+	animation-fill-mode: forwards;
+	animation-iteration-count: 1, infinite;
+	animation-name: fall, vert-bob;
+	animation-timing-function: ease-out, ease-in-out;
+}
+// icomoon
+
+[class^="icon-"], [class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-sort-desc:before {
+  content: "\f0dd";
+}
+.icon-sort-down:before {
+  content: "\f0dd";
+}
+.icon-gittip:before {
+  content: "\f184";
+}
+.icon-gratipay:before {
+  content: "\f184";
+}
+.icon-arrow-circle-o-right:before {
+  content: "\f18e";
+}
+.icon-heart:before {
+  content: "\e900";
+}
+.icon-chat:before {
+  content: "\2300";
+}
+.icon-heart2:before {
+  content: "\e04a";
+}
+.icon-play:before {
+  content: "\e901";
+}
+.icon-arrow-right-alt1:before {
+  content: "\e902";
+}
+.icon-arrow-with-circle-down:before {
+  content: "\e903";
+}
+.icon-chevron-with-circle-down:before {
+  content: "\e904";
+}
+.icon-heart3:before {
+  content: "\e905";
+}
+.icon-github-with-circle:before {
+  content: "\e906";
+}
+.icon-github:before {
+  content: "\e907";
+}
+
+
+// :keyframes
+@keyframes bob {
+}
+
+
+@keyframes fall {
+	0% {
+		transform: translateY(0px);
+	}
+	100% {
+		transform: translateY(4px);
+	}
+}
+
+
+@keyframes vert-bob {
+	0% {
+		transform: translateY(3px);
+	}
+	50% {
+		transform: translateY(0px);
+	}
+	100% {
+		transform: translateY(3px);
+	}
+}
+// keyframes:
