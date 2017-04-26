@@ -69,13 +69,13 @@
 					<div id='globe-map' class='map-proper-container flag-inline-display'>
 					</div>
 					<div id='nation-info' class='flag-inline-display'>
+						<div class='input-selection' id='side-content'>
+						</div>
 						<div id='flag-info' class='inner-info-wrap'>
 							<h4 id='nation-title'>
 							</h4>
 							<ul id='flag-nation-colors'>
 							</ul>
-						</div>
-						<div class='input-selection' id='side-content'>
 						</div>
 					</div>
 				</div>
@@ -97,9 +97,8 @@
 		<!-- create the d3 map -->
 		<script type="text/javascript">
 			var clickItem = false;
-
-			var width = 400,
-			height = 400;
+			var viewportPercentage = 55;
+			var width = height = obtainDimensions(34);
 
 			// :event vars
 			var vertOffset = -22,
@@ -318,6 +317,86 @@
 				}
 			}
 
+			function cumulativeHexValue(hexcode) {
+				var hexcode = hexcode,
+				total = 0;
+
+				if (hexcode.charAt(0) == '#') {
+					hexcode = hexcode.slice(1);
+				}
+
+				var hexcodes = [];
+
+				if (hexcode.length === 3) {
+					for (var i = 0; i < hexcode.length; i++) {
+						var subcode = hexcode[i] + hexcode[i];
+						hexcodes.push(subcode);
+					}
+				} else if (hexcode.length === 6) {
+					while (hexcode.length) {
+						var subcode = hexcode.slice(0, 2),
+						hexcode = hexcode.slice(2);
+						hexcodes.push(subcode);
+					}
+				} else {
+					console.log('invalid hexvalue');
+				}
+
+				for (var i = 0; i < hexcodes.length; i++) {
+					var values = [];
+					hexcode = hexcodes[i];
+					for (var j = 0; j < hexcode.length; j++) {
+						var currChar = hexcode[j];
+						switch (currChar) {
+							case 'A':
+								values.push(11);
+								break;
+							case 'a':
+								values.push(11);
+								break;
+							case 'B':
+								values.push(12);
+								break;
+							case 'b':
+								values.push(12);
+								break;
+							case 'C':
+								values.push(13);
+								break;
+							case 'c':
+								values.push(13);
+								break;
+							case 'D':
+								values.push(14);
+								break;
+							case 'd':
+								values.push(14);
+								break;
+							case 'E':
+								values.push(15);
+								break;
+							case 'e':
+								values.push(15);
+								break;
+							case 'F':
+								values.push(16);
+								break;
+							case 'f':
+								values.push(16);
+								break;
+							default:
+								values.push(+(currChar));
+								break;
+						}
+					}
+
+					var subtotal = values[0] * values [1];
+					total += subtotal - 1;
+				}
+
+				return total;
+			}
+			cumulativeHexValue('#FFFFFF');
 			function displaySelectedNation(nation_data) {
 				if (nation_data.name) {
 					focusTarget.querySelector('#nation-title').innerText = nation_data.name;
@@ -332,6 +411,13 @@
 						fColorsEl.innerHTML += "<li><p class='flag-name'>"+fColors[i]+"</p><div class='flag-color' data-color="+fColors[i]+"></div></li>";
 					}
 				}
+			}
+
+			// get the dimensions based on viewport
+			function obtainDimensions(percentage=100) {
+				var sideLength = window.innerWidth;
+				sideLength = Math.floor(sideLength*(percentage/100));
+				return sideLength;
 			}
 
 			// get the corresponding country path

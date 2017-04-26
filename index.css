@@ -54,7 +54,7 @@ body {
 #globe-select li {
 	box-sizing: border-box;
 	display: block;
-	padding: 12px 0px 12px 12px;
+	padding: 7px 0px 7px 12px;
 	width: 100%;
 }
 
@@ -103,7 +103,7 @@ body {
 	border-width: 2px;
   cursor: pointer;
   display: inline-block;
-  min-height: 110px;
+  min-height: 85px;
   min-width: 220px;
   position: relative;
   width: 100%;
@@ -143,11 +143,12 @@ body {
 }
 
 #flag-info {
-  margin: 0 auto;
+  margin: 2em auto 0;
   opacity: 0;
+  padding-top: 24px;
   transform: perspective(1px) translateY(-100%) translateZ(0px);
   transform-origin: 50% 0;
-  width: 88%;
+  width: 74%;
 }
 
 #flag-info.active-flag {
@@ -162,6 +163,7 @@ body {
 	display: inline-block;
 	margin: 0;
 	padding: 0;
+  position: relative;
 	vertical-align: top;
 }
 
@@ -171,6 +173,7 @@ body {
 }
 
 #flag-nation-colors {
+  margin-top: 16px;
   text-align: right;
 }
 
@@ -191,10 +194,11 @@ body {
 }
 
 #globe-map {
-	margin: 20px 0;
+	margin: 2.4em 0;
+  padding: 64px 0 0;
 	position: relative;
 	shape-rendering: geometricPrecision;
-	width: 55%;
+	width: 40%;
 }
 
 #globe-select {
@@ -226,6 +230,11 @@ body {
 	border-bottom: 1px solid #ACACAC;
 }
 
+#globe-svg {
+  display: block;
+  margin: 0 auto;
+}
+
 .globe-tooltip {
 	display: none;
 	white-space: nowrap;
@@ -237,7 +246,8 @@ body {
 }
 
 #nation-info {
-  width: 48%;
+  margin-left: 5%;
+  width: 55%;
 }
 
 #nation-title {
@@ -250,9 +260,11 @@ body {
 }
 
 #side-content {
-	position: relative;
+	position: absolute;
+  left: 55%;
 	max-width: 580px;
-	width: 45%;
+  right: 0;
+  z-index: 650;
 }
 
 #side-content.active-select #globe-select {
