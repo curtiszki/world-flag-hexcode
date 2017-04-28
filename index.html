@@ -93,6 +93,7 @@
 		<script src='http://d3js.org/d3.v4.min.js'></script>
 		<script src='http://d3js.org/topojson.v1.min.js'></script>
 		<script src="http://d3js.org/queue.v1.min.js"></script>
+		<script src='/vendor/fuse.min.js'></script>
 
 		<!-- create the d3 map -->
 		<script type="text/javascript">
@@ -149,6 +150,17 @@
 			.append('span')
 			.attr('class', 'active-icon')
 			.style('left', '-2px');
+
+			var inputWrap = d3.select('#nation-info')
+			.append('div')
+			.attr('id', 'input-container');
+
+			var fuzzySearch = inputWrap
+			.append('input')
+			.attr('type', 'text')
+			.attr('maxlength', '50')
+			.attr('id', 'country-input');
+
 
 			d3.select('#side-content').on('click', function() {
 				var currentEl = d3.select(this);
@@ -252,6 +264,11 @@
 						var element = this;
 						countrySelect(element, d);
 					});
+				initFuzzy(inputWrap, countryNames, focusTarget);
+				fuzzySearch.on('input', function() {
+					var inputEvent = new CustomEvent('inputEvent', {'detail': this.value});
+					focusTarget.dispatchEvent(inputEvent);
+				});
 			};
 
 			// :callbacks
@@ -271,6 +288,7 @@
 					elName.className += ' '+className;
 				}
 			}
+
 
 			function colorizeFlagColors(className) {
 				var elements = document.getElementsByClassName(className);
@@ -413,6 +431,103 @@
 				}
 			}
 
+			// use fuse.js to create county fuzzySearch
+			function initFuzzy(htmlEl, data, target) {
+
+				var fuseOptions = {
+					id: "name",
+				  shouldSort: true,
+				  threshold: 0.1,
+				  location: 0,
+				  distance: 10,
+				  maxPatternLength: 32,
+				  minMatchCharLength: 1,
+				  keys: [
+						"name"
+					]
+				};
+
+				var fuse = new Fuse(data, fuseOptions);
+
+				var searchOptions = htmlEl.append('ul')
+				.attr('id', 'search-options');
+
+				target.addEventListener('inputEvent', function(e){
+
+					if (e.detail.length) {
+						inputWrap.classed('active-input', true);
+					} else {
+						inputWrap.classed('active-input', false);
+					}
+					var htmlString = '';
+					var results = fuse.search(e.detail);
+					if (!results.length) {
+						htmlEl.classed('no-results', true);
+					} else {
+						htmlEl.classed('no-results', false);
+					}
+					for (var i = 0; i < Math.min(6, results.length); i++) {
+						htmlString += "<li class='search-option' data-order="+i+">"+results[i]+"</li>";
+					}
+					searchOptions.html(htmlString);
+				});
+
+				fuzzySearch.on('click', function(){
+
+					this.addEventListener('keydown', inputKeypress);
+
+					document.addEventListener('click', function(e) {
+						if (e.target.id != 'country-input') {
+							fuzzySearch.classed('active-input', false);
+							document.removeEventListener('click', arguments.callee);
+							fuzzySearch.on('keydown', null);
+						}
+					});
+				});
+			}
+
+			// handler for fuzzyinput keypresses (up/down)
+			function inputKeypress(e) {
+				var curIndex;
+				var children = document.getElementsByClassName('search-option');
+				console.log(children);
+				for (var i = 0; i < children.length; i++) {
+						if (children[i].className.indexOf('current-option') > -1) {
+							var curIndex = i;
+						}
+				}
+
+				if (curIndex === undefined) {
+					curIndex = 0;
+				}
+
+
+				switch (e.keyCode) {
+					case 38:
+						if (children[curIndex].className.indexOf('current-option') > -1) {
+							removeClass(children[curIndex], 'current-option');
+							if (curIndex - 1 < 0) { curIndex = children.length - 1 }
+							else { curIndex -= 1; }
+						}
+						children[curIndex].className += ' current-option';
+						break;
+					case 40:
+						if (children[curIndex].className.indexOf('current-option')>-1) {
+							removeClass(children[curIndex], 'current-option');
+							if (curIndex + 1 > children.length-1) { curIndex = 0; }
+							else { curIndex += 1;}
+						}
+						children[curIndex].className += ' current-option';
+  						break;
+					case 13:
+						console.log('enter key');
+						break;
+					default:
+						break;
+
+				}
+			}
+
 			// get the dimensions based on viewport
 			function obtainDimensions(percentage=100) {
 				var sideLength = window.innerWidth;
@@ -428,6 +543,13 @@
 					}
 				}
 			};
+
+			function removeClass(elName, className) {
+				if (elName.className.indexOf(className) > -1) {
+					var reg = new RegExp('(\W)?'+className);
+					elName.className = elName.className.replace(reg, '');
+				}
+			}
 
 			function retrieveColorValues(d) {
 				var keys = Object.keys(d),
@@ -464,16 +586,10 @@
 					classCheck(rElement[0], className);
 				}
 			}
-
-
 			// callbacks:
 
 			// :events
-
-
 			var nationPaths = svg.selectAll('path.country');
-
-
 
 			d3.select('select').on('change', function() {
 				var rotate = projection.rotate(),
