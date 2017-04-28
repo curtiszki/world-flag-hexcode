@@ -125,6 +125,7 @@ body {
 #input-container.active-input #search-options {
   border-style: solid;
   border-top-style: none;
+  display: block;
   padding: 10px 6px;
 }
 
@@ -315,6 +316,7 @@ body {
   border: 1px solid #787878;
   border-top: none;
   border-style: none;
+  display: none;
   position: absolute;
   top: 100%;
   width: 100%;

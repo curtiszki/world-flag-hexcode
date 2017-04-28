@@ -208,7 +208,7 @@
 							.attr('class', 'active-icon');
 
 						var element = this;
-						countrySelect(element, d);
+						countrySelect(element);
 					});
 				});
 
@@ -262,7 +262,7 @@
 					})
 					.on('click', function(d) {
 						var element = this;
-						countrySelect(element, d);
+						countrySelect(element);
 					});
 				initFuzzy(inputWrap, countryNames, focusTarget);
 				fuzzySearch.on('input', function() {
@@ -298,7 +298,7 @@
 				}
 			}
 
-			function countrySelect(el, data) {
+			function countrySelect(el) {
 				var country,
 				countryPath;
 
@@ -435,7 +435,6 @@
 			function initFuzzy(htmlEl, data, target) {
 
 				var fuseOptions = {
-					id: "name",
 				  shouldSort: true,
 				  threshold: 0.1,
 				  location: 0,
@@ -467,7 +466,7 @@
 						htmlEl.classed('no-results', false);
 					}
 					for (var i = 0; i < Math.min(6, results.length); i++) {
-						htmlString += "<li class='search-option' data-order="+i+">"+results[i]+"</li>";
+						htmlString += "<li class='search-option' data-order="+i+" data-id="+results[i].id+">"+results[i].name+"</li>";
 					}
 					searchOptions.html(htmlString);
 				});
@@ -477,8 +476,10 @@
 					this.addEventListener('keydown', inputKeypress);
 
 					document.addEventListener('click', function(e) {
+						console.log('i fired!');
 						if (e.target.id != 'country-input') {
-							fuzzySearch.classed('active-input', false);
+							console.log('I got in here');
+							inputWrap.classed('active-input', false);
 							document.removeEventListener('click', arguments.callee);
 							fuzzySearch.on('keydown', null);
 						}
@@ -490,7 +491,6 @@
 			function inputKeypress(e) {
 				var curIndex;
 				var children = document.getElementsByClassName('search-option');
-				console.log(children);
 				for (var i = 0; i < children.length; i++) {
 						if (children[i].className.indexOf('current-option') > -1) {
 							var curIndex = i;
@@ -500,7 +500,6 @@
 				if (curIndex === undefined) {
 					curIndex = 0;
 				}
-
 
 				switch (e.keyCode) {
 					case 38:
@@ -520,11 +519,16 @@
 						children[curIndex].className += ' current-option';
   						break;
 					case 13:
-						console.log('enter key');
+						if (children[curIndex].className.indexOf('current-option')) {
+							var curEl = children[curIndex];
+							displaySelectedNation(retrieveCountryValues(curEl.getAttribute('data-id')));
+							colorizeFlagColors('flag-color');
+							animateInfo();
+							countrySelect(curEl);
+						}
 						break;
 					default:
 						break;
-
 				}
 			}
 
