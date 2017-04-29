@@ -15,14 +15,14 @@
 	<style type='text/css'>
 
 		#d3-sphere {
-			fill: #F8F8F8;
+			fill: #d8e0ff;
 			stroke: #858585;
 			stroke-width: 2px;
 		}
 
 		.border {
 			fill: none;
-			stroke: #434b54;
+			stroke: #696d73;
 		}
 
 		.country {
@@ -33,7 +33,7 @@
 		}
 
 		#globe-svg {
-			fill: #8c96a0;
+			fill: #45505d;
 		}
 
 		.globe-tooltip {
@@ -45,7 +45,7 @@
 
 		.graticule {
 			fill: none;
-			stroke: #CCC;
+			stroke: #A8A8A8;
 		}
 
 	</style>
@@ -85,7 +85,7 @@
 
 		<footer id='footer'>
 			<p class='info-plug'>
-				Created by <a href='//curtiszki.github.io'>Curtis Grotzke</a>. This source code can be found on <a href='//github.com/curtiszki/world-flag-hexcode'>Github</a>
+				Created by <a href='//curtiszki.github.io'>Curtis Grotzke</a>. The source code can be found on <a href='//github.com/curtiszki/world-flag-hexcode'>Github</a>
 			</p>
 		</footer>
 
@@ -104,8 +104,8 @@
 			// :event vars
 			var vertOffset = -22,
 			horOffset = 8;
-			var hoverFocused = '#a5dfbe',
-			focusedFill = '#b0d3bf';
+			var hoverFocused = '#f3bf76',
+			focusedFill = '#eec883';
 			var focusTarget = document.getElementById('nation-info'),
 				fColorsEl = focusTarget.querySelector('#flag-nation-colors');
 			// event vars:
@@ -426,7 +426,8 @@
 					var fColors = nation_data.flag_colors;
 					fColorsEl.innerHTML = '';
 					for (var i = 0; i < fColors.length; i++) {
-						fColorsEl.innerHTML += "<li><p class='flag-name'>"+fColors[i]+"</p><div class='flag-color' data-color="+fColors[i]+"></div></li>";
+						if(!fColors[i].length) continue;
+						fColorsEl.innerHTML += "<li><p class='flag-name'>"+fColors[i]+"</p><div class='flag-color icomoon' data-color="+fColors[i]+"></div></li>";
 					}
 				}
 			}
@@ -469,16 +470,40 @@
 						htmlString += "<li class='search-option' data-order="+i+" data-id="+results[i].id+">"+results[i].name+"</li>";
 					}
 					searchOptions.html(htmlString);
+					// append a click listener to each item
+					var listEl = searchOptions.selectAll('.search-option');
+
+					listEl.each(function(d, i) {
+						this.addEventListener('click', function(e) {
+							displaySelectedNation(retrieveCountryValues(this.getAttribute('data-id')));
+							colorizeFlagColors('flag-color');
+							animateInfo();
+							countrySelect(this);
+						}, true);
+					});
+
+					/*
+					for (var i = 0; i < children.length; i++) {
+						var curEl = children[i];
+						/*
+						curEl.addEventListener('click', function(e) {
+						console.log('theese');
+						console.log('faster than my bullet');
+						displaySelectedNation(retrieveCountryValues(curEl.getAttribute('data-id')));
+						colorizeFlagColors('flag-color');
+						animateInfo();
+						countrySelect(curEl);
+					});
+					*/
+				//}
 				});
 
-				fuzzySearch.on('click', function(){
 
+				fuzzySearch.on('click', function(){
 					this.addEventListener('keydown', inputKeypress);
 
 					document.addEventListener('click', function(e) {
-						console.log('i fired!');
-						if (e.target.id != 'country-input') {
-							console.log('I got in here');
+						if (e.target.id != 'country-input' && e.target.className.indexOf('search-option') < 0) {
 							inputWrap.classed('active-input', false);
 							document.removeEventListener('click', arguments.callee);
 							fuzzySearch.on('keydown', null);
@@ -530,6 +555,7 @@
 					default:
 						break;
 				}
+
 			}
 
 			// get the dimensions based on viewport

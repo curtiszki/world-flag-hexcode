@@ -10,7 +10,9 @@
 }
 
 html {
+  background: #f3f3f5;
 	font-size: 16px;
+  padding: 28px 12px;
 }
 body {
 	font-family: monospace;
@@ -39,10 +41,11 @@ body {
 }
 
 .active-option {
-	background: rgb(255, 255, 0);
-	background: rgba(255, 255, 0, 0.3);
-	border: 1px solid indianred;
+	background: #494951;
+	border: 1px solid #393941;
+  color: #fbfbfb;
 	cursor: pointer;
+  letter-spacing: 0.075em;
 	padding-bottom: 16px;
 	padding-top: 14px;
 	position: relative;
@@ -60,18 +63,19 @@ body {
 
 
 .active-option:hover {
-	background: teal;
-	color: white;
+	background: #3d3d57;
 }
 
 .active-select
 .active-option {
-	background-color: cornflowerblue;
+	background-color: #865f5f;
+  border: 1px solid #4b4b4b;
+  border-bottom-style: none;
 }
 
 .active-select
 .active-option:hover {
-  background-color: seagreen;
+  background-color: #824848;
 }
 
 .active-select .active-option {
@@ -83,7 +87,10 @@ body {
 
 }
 .content-wrapper {
-	background: #CDCDCD;
+	background: url('assets/images/bg-grid.png');
+  background-color: #f8f9ff;
+  border: 1px solid #564d4d;
+  border-radius: 3px;
 	box-sizing: border-box;
 	margin: 12px auto;
 	min-height: 100%;
@@ -135,14 +142,20 @@ body {
 }
 
 .flag-color {
-	border-style: solid;
-	border-width: 2px;
+  border-radius: 2px;
+  box-shadow: 0px 0px 2px #525252;
   cursor: pointer;
   display: inline-block;
+  font-family: 'icomoon';
   min-height: 85px;
   min-width: 220px;
   position: relative;
+  speak: none;
   width: 100%;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
 }
 
 .flag-color:before {
@@ -165,7 +178,7 @@ body {
 
 .flag-color:after {
   color: #FFF;
-  content: 'placeholder';
+  content: '\e92d';
   line-height: 0;
   opacity: 0;
   text-align: center;
@@ -181,7 +194,7 @@ body {
 #flag-info {
   margin: 2em auto 0;
   opacity: 0;
-  padding-top: 24px;
+  padding-top: 32px;
   transform: perspective(1px) translateY(-100%) translateZ(0px);
   transform-origin: 50% 0;
   width: 74%;
@@ -222,28 +235,33 @@ body {
 }
 
 #footer a {
+  cursor: pointer;
 	text-decoration: none;
 }
 
 #footer a:hover {
-  color: orangered;
+  text-decoration: underline;
 }
 
 #globe-map {
 	margin: 2.4em 0;
-  padding: 64px 0 0;
+  padding: 58px 0 0;
 	position: relative;
 	shape-rendering: geometricPrecision;
 	width: 40%;
 }
 
 #globe-select {
-	background: aliceblue;
+	background: #FFF;
+  border: 1px solid #4b4b4b;
+  border-top-style: none;
+  box-sizing: border-box;
 	cursor: pointer;
 	height: 800%;
-	max-width: 100%;
+	max-width: 580px;
 	overflow-x: hidden;
 	overflow-y: auto;
+  left: 0;
 	padding: 3px 0 6px;
 	position: absolute;
 	top: 100%;
@@ -258,7 +276,7 @@ body {
 }
 
 #globe-select li:hover {
-	background: orangered;
+	background: #6895aa;
 	transition: background 0.25s ease;
 }
 
@@ -274,6 +292,10 @@ body {
 .globe-tooltip {
 	display: none;
 	white-space: nowrap;
+}
+
+.info-plug {
+  margin-top: 20px;
 }
 
 .map-outer-container {
@@ -292,7 +314,7 @@ body {
 }
 
 .page-title {
-	font-size: 1.2em;
+	font-size: 1.27em;
 }
 
 .search-option {
@@ -357,7 +379,7 @@ body {
 }
 
 .sweep-to-bottom:before {
-	background: #BCBCBC;
+	background: #5d7185;
 	bottom: 0;
 	content: '';
 	left: 0;
@@ -404,8 +426,11 @@ body {
 	animation-name: fall, vert-bob;
 	animation-timing-function: ease-out, ease-in-out;
 }
-// icomoon
 
+.text-wrapper {
+  margin-top: 14px;
+}
+// icomoon
 [class^="icon-"], [class*=" icon-"] {
   /* use !important to prevent issues with browser extensions that change fonts */
   font-family: 'icomoon' !important;
@@ -421,50 +446,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-sort-desc:before {
-  content: "\f0dd";
-}
-.icon-sort-down:before {
-  content: "\f0dd";
-}
-.icon-gittip:before {
-  content: "\f184";
-}
-.icon-gratipay:before {
-  content: "\f184";
-}
-.icon-arrow-circle-o-right:before {
-  content: "\f18e";
-}
-.icon-heart:before {
-  content: "\e900";
-}
-.icon-chat:before {
-  content: "\2300";
-}
-.icon-heart2:before {
-  content: "\e04a";
-}
-.icon-play:before {
-  content: "\e901";
-}
-.icon-arrow-right-alt1:before {
-  content: "\e902";
-}
-.icon-arrow-with-circle-down:before {
-  content: "\e903";
+.icon-paste:before {
+  content: "\e92d";
 }
 .icon-chevron-with-circle-down:before {
   content: "\e904";
-}
-.icon-heart3:before {
-  content: "\e905";
-}
-.icon-github-with-circle:before {
-  content: "\e906";
-}
-.icon-github:before {
-  content: "\e907";
 }
 
 
